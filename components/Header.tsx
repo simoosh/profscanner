@@ -1,10 +1,10 @@
 import React from 'react';
-import { useAuth } from '../context/AuthContext';
+
 import { Sparkles, User as UserIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export const Header: React.FC = () => {
-  const { user } = useAuth();
+  
 
   return (
     <header className="px-6 py-5 bg-white border-b border-gray-100 flex items-center justify-between sticky top-0 z-10">

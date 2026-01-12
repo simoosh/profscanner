@@ -20,10 +20,7 @@ export const Profile: React.FC = () => {
     }
   };
 
-  const showFeatureAlert = (feature: string) => {
-    // On garde l'alerte simple pour les autres boutons
-    alert(`La fonctionnalité "${feature}" sera disponible prochainement.`);
-  };
+  
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors duration-300 pb-20 relative">
