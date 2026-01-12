@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 // On importe l'icône Diamant et X (Fermer)
-import { Gem, X } from 'lucide-react';
+import { Gem } from 'lucide-react';
 
 export const Profile: React.FC = () => {
   const { user, logout } = useAuth();

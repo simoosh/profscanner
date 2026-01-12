@@ -8,7 +8,7 @@ import {
   GoogleAuthProvider, // <--- AJOUT
   User 
 } from 'firebase/auth';
-import { auth } from '../firebaseConfig';
+import { auth } from '../firebase';
 
 interface AuthContextType {
   user: User | null;

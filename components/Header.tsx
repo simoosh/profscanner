@@ -14,9 +14,9 @@ export const Header: React.FC = () => {
         </div>
         <div>
           <h1 className="text-xl font-bold text-gray-900 leading-tight">ProfScanner</h1>
-          <p className="text-xs text-primary-600 font-medium">
-            {user?.plan === 'free' ? 'Plan Gratuit' : 'Plan Pro'} • {user?.credits || 0} crédits
-          </p>
+          <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+  Plan Gratuit
+</p>
         </div>
       </div>
       

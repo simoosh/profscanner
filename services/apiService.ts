@@ -1,14 +1,12 @@
-import { db, auth } from '../firebaseConfig';
+import { db, auth } from '../firebase';
 import { 
   collection, 
   addDoc, 
   query, 
-  where, 
   getDocs, 
   doc, 
   getDoc, 
-  orderBy, 
-  updateDoc
+  updateDoc 
 } from 'firebase/firestore';
 
 export interface ScanResult {
