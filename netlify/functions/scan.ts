@@ -6,7 +6,7 @@ import * as path from 'path';
 // --- CONFIGURATION STRICTE ---
 // Note: Le nom officiel actuel du modèle Flash Next-Gen est "gemini-2.0-flash-exp".
 // Si tu as un accès spécial à "gemini-2.5-flash", remplace-le ici.
-const MODEL_NAME = "gemini-2.5-flash-lite";
+const MODEL_NAME = "gemini-2.5-flash";
 
 const handler: Handler = async (event) => {
   // 1. FORÇAGE DU CHARGEMENT .ENV (Fix Windows/Netlify)
