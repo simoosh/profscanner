@@ -1,0 +1,7 @@
+{
+  "name": "ProfScanner",
+  "description": "Application professionnelle de numérisation et de conversion de documents utilisant l'IA.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

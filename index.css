@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    /* J'ajoute ici dark:bg-slate-900 et dark:text-gray-100 */
+    /* C'est ce qui garantit que toute l'application a le bon fond par défaut */
+    @apply bg-gray-50 text-gray-900 dark:bg-slate-900 dark:text-gray-100 antialiased;
+  }
+}
+
+/* --- ANIMATION DE TRANSITION --- */
+/* Cette règle applique une transition fluide de 300ms sur les couleurs */
+/* pour que le passage Dark <-> Light soit agréable à l'œil */
+body, div, nav, header, main, section, article, aside, footer, button, input, textarea, span, p, h1, h2, h3 {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+/* --- SCROLLBAR PERSONNALISÉE (Barre de défilement) --- */
+
+/* Style par défaut (Mode Clair) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px; /* Pour le scroll horizontal */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1; /* Gris clair */
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8; /* Un peu plus foncé au survol */
+}
+
+/* Style spécifique au Mode Sombre */
+.dark ::-webkit-scrollbar-track {
+  background: #0f172a; /* Slate 900 (Fond très sombre) */
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155; /* Slate 700 (Gris bleuté) */
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569; /* Slate 600 */
+}
+/* ... Tes codes précédents ... */
+
+/* Animation Shine (Reflet brillant) */
+@keyframes shine {
+  0% { transform: translateX(-100%) skewX(-15deg); }
+  100% { transform: translateX(200%) skewX(-15deg); }
+}
+
+.animate-shine {
+  animation: shine 2.5s infinite;
+}
+
+/* Effet Doré pour le texte/icone (Gold Gradient Text) */
+.text-gold-gradient {
+  background: linear-gradient(to bottom right, #fde68a, #f59e0b);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
