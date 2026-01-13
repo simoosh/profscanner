@@ -3,7 +3,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // --- CONFIGURATION DU MODÈLE ---
 // On utilise le modèle 2.0 Flash Experimental qui est disponible et gratuit
-const MODEL_NAME = "gemini-2.0-flash-exp";
+const MODEL_NAME = "	gemini-2.5-flash-lite";
 
 const handler: Handler = async (event) => {
   // Headers pour autoriser l'accès depuis n'importe où (CORS)
