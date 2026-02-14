@@ -71,3 +71,59 @@ body, div, nav, header, main, section, article, aside, footer, button, input, te
   background-clip: text;
   color: transparent;
 }
+/* --- ANIMATION POUBELLE (DELETE) --- */
+
+/* Le couvercle qui s'ouvre */
+@keyframes trashLidOpen {
+  0% { transform: rotate(0deg); }
+  10% { transform: rotate(-45deg); } /* Ouvre vite */
+  60% { transform: rotate(-45deg); } /* Reste ouvert */
+  80% { transform: rotate(0deg); } /* Ferme */
+  100% { transform: rotate(0deg); }
+}
+
+/* Le papier qui tombe dedans */
+@keyframes paperFall {
+  0% { 
+    transform: translate(-10px, -40px) rotate(0deg) scale(1); 
+    opacity: 0; 
+  }
+  10% { opacity: 1; } /* Apparaît */
+  40% { 
+    transform: translate(0, 10px) rotate(180deg) scale(0.6); 
+    opacity: 1; 
+  }
+  60% { 
+    transform: translate(5px, 20px) rotate(200deg) scale(0); /* Disparait dans la boite */
+    opacity: 0; 
+  }
+  100% { opacity: 0; }
+}
+
+.animate-trash-lid {
+  transform-origin: right bottom; /* Le pivot est à droite du couvercle */
+  animation: trashLidOpen 2s ease-in-out infinite;
+}
+
+.animate-paper-fall {
+  animation: paperFall 2s ease-in-out infinite;
+}
+
+/* --- ANIMATION VIREVOLTANT (ERROR) --- */
+
+@keyframes tumbleRoll {
+  0% { 
+    transform: translateX(-40px) rotate(0deg); 
+    opacity: 0;
+  }
+  10% { opacity: 1; } /* Fade IN */
+  90% { opacity: 1; }
+  100% { 
+    transform: translateX(40px) rotate(720deg); 
+    opacity: 0; /* Fade OUT */
+  }
+}
+
+.animate-tumble-roll {
+  animation: tumbleRoll 3s linear infinite;
+}

@@ -120,7 +120,7 @@ const Preferences: React.FC = () => {
 
         {/* Footer Info */}
         <div className="text-center pt-8">
-            <p className="text-xs text-gray-400 dark:text-gray-600">ProfScanner v1.0.2 (Beta)</p>
+            <p className="text-xs text-gray-400 dark:text-gray-600">ProfScanner v1.2.2 (Beta)</p>
             <p className="text-xs text-gray-300 dark:text-gray-700 mt-1">© 2026 . Slimane Sahnoune, all rights reserved®.</p>
         </div>
 
