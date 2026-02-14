@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
-import anime from 'animejs';
+// @ts-ignore
+import anime from 'animejs/lib/anime.es.js';
 import { Server, AlertTriangle } from 'lucide-react';
 
 export type ModalType = 'delete' | 'error' | 'server-sleep' | 'info';

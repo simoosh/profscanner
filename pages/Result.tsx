@@ -3,7 +3,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ApiService, ScanResult } from '../services/apiService';
 import { RenameModal } from '../components/RenameModal';
 import { AppModal, ModalType } from '../components/AppModal'; // <--- NOUVEAU
-import { Pencil, ArrowLeft, Lock, Download, PlayCircle, Trash2 } from 'lucide-react';
+import { Pencil, ArrowLeft, Lock, PlayCircle, Trash2 } from 'lucide-react';
 
 const Result: React.FC = () => {
   const { id } = useParams();
@@ -18,7 +18,7 @@ const Result: React.FC = () => {
   const [loading, setLoading] = useState(!location.state?.scanResult);
   const [isRenaming, setIsRenaming] = useState(false);
   
-  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [_isUnlocked, setIsUnlocked] = useState(false);
   const [adLoading, setAdLoading] = useState(false);
 
   // État Modale

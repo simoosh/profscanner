@@ -178,7 +178,7 @@ const Home: React.FC = () => {
           >
             <div className="flex items-center gap-3">
               <div className={`p-2 rounded-lg transition-colors ${hasMath ? 'bg-purple-100 text-purple-600' : 'bg-gray-100 text-gray-400'}`}>
-                <Pi size={24} weight="bold" />
+                <Pi size={24} strokeWidth={3} />
               </div>
               <div>
                 <p className={`font-bold transition-colors ${hasMath ? 'text-purple-700 dark:text-purple-300' : 'text-gray-600 dark:text-gray-400'}`}>
