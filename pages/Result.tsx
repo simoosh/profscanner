@@ -96,9 +96,11 @@ const Result: React.FC = () => {
   if (loading) return <div className="flex-1 flex flex-col items-center justify-center w-full">Chargement...</div>;
   if (!scanData) return <div className="flex-1 flex flex-col items-center justify-center text-gray-500 w-full">Erreur.</div>;
 
+  // Préparer le contenu pour l'iframe sandboxée (évite que les <style> du HTML généré ne fuient dans la page)
+  const iframeContent = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{margin:0;padding:16px;font-family:Inter,sans-serif;overflow:hidden;}</style></head><body>${scanData.content}</body></html>`;
+
   return (
-    // On laisse le fond transparent pour qu'il prenne la couleur du body géré par Tailwind
-    <div className="flex-1 flex flex-col w-full relative pb-24">
+    <div className="flex-1 flex flex-col w-full relative overflow-hidden">
       
       <AppModal 
         isOpen={modalConfig.isOpen} type={modalConfig.type} title={modalConfig.title} message={modalConfig.message} onConfirm={modalConfig.onConfirm} onClose={closeModal} isLoading={adLoading}
@@ -129,7 +131,7 @@ const Result: React.FC = () => {
       </div>
 
       {/* ZONE DE CONTENU PRINCIPALE */}
-      <div className="flex-1 flex flex-col relative p-4 w-full max-w-3xl mx-auto">
+      <div className="flex-1 flex flex-col relative p-4 w-full">
         
         <div className="flex flex-col items-center justify-center text-center mb-4 opacity-50 flex-shrink-0 w-full px-4">
           <h2 dir="auto" className="text-xl font-bold text-gray-800 dark:text-white line-clamp-2 text-center w-full break-words">
@@ -141,9 +143,13 @@ const Result: React.FC = () => {
         {/* CONTENEUR DU DOCUMENT */}
         <div className="relative w-full h-[400px] sm:h-[60vh] bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden flex-shrink-0">
             
-            <div 
-                className="absolute inset-0 p-6 prose lg:prose-xl dark:prose-invert max-w-none filter blur-md select-none opacity-40 overflow-hidden pointer-events-none"
-                dangerouslySetInnerHTML={{ __html: scanData.content }}
+            {/* IFRAME SANDBOXÉE — isole complètement le HTML généré par l'IA */}
+            <iframe
+                srcDoc={iframeContent}
+                className="absolute inset-0 w-full h-full border-none filter blur-md select-none opacity-40 pointer-events-none"
+                sandbox=""
+                tabIndex={-1}
+                title="Aperçu du document"
             />
             
             {/* OVERLAY DE VERROUILLAGE */}

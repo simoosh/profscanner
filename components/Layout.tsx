@@ -14,17 +14,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const showBottomNav = !isAuthPage && !isResultPage;
 
   return (
-    // flex-1 garantit que le layout remplit l'écran
     <div className="flex-1 flex flex-col w-full relative transition-colors duration-300">
       
       <main className={`
-        flex-1 flex flex-col w-full mx-auto
-        /* MOBILE : Transparent pour hériter du body, 100% de large */
-        bg-transparent
-        /* PC : Effet carte centré */
-        md:max-w-2xl md:bg-white md:dark:bg-slate-800 md:shadow-2xl md:my-8 md:rounded-2xl md:overflow-hidden
-        relative
-        ${showBottomNav ? 'pb-20' : 'pb-0'}
+        flex-1 flex flex-col w-full overflow-x-hidden
+        ${showBottomNav ? 'pb-20' : ''}
       `}>
         {children}
       </main>

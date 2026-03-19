@@ -22,7 +22,13 @@
     overflow-x: hidden;
   }
 
-  /* 3. Les couleurs de fond globales */
+  /* 3. Filet de sécurité : aucun enfant ne dépasse l'écran */
+  #root * {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* 4. Les couleurs de fond globales */
   body {
     @apply bg-gray-50 text-gray-900 dark:bg-slate-900 dark:text-gray-100 antialiased;
   }
