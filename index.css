@@ -3,105 +3,84 @@
 @tailwind utilities;
 
 @layer base {
+  /* 1. On force la page à prendre l'écran complet et on bloque le rebond */
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overscroll-behavior-y: none; /* Bloque le glissement/rebond natif */
+    overflow-x: hidden; /* Empêche de glisser sur le côté */
+  }
+
+  /* 2. Le conteneur React devient une colonne élastique */
+  #root {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* 3. Les couleurs de fond globales */
   body {
-    /* J'ajoute ici dark:bg-slate-900 et dark:text-gray-100 */
-    /* C'est ce qui garantit que toute l'application a le bon fond par défaut */
     @apply bg-gray-50 text-gray-900 dark:bg-slate-900 dark:text-gray-100 antialiased;
   }
 }
 
 /* --- ANIMATION DE TRANSITION --- */
-/* Cette règle applique une transition fluide de 300ms sur les couleurs */
-/* pour que le passage Dark <-> Light soit agréable à l'œil */
 body, div, nav, header, main, section, article, aside, footer, button, input, textarea, span, p, h1, h2, h3 {
   transition-property: background-color, border-color, color, fill, stroke;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 300ms;
 }
 
-/* --- SCROLLBAR PERSONNALISÉE (Barre de défilement) --- */
-
-/* Style par défaut (Mode Clair) */
+/* --- SCROLLBAR PERSONNALISÉE --- */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px; /* Pour le scroll horizontal */
+  width: 6px;
+  height: 6px; 
 }
-
 ::-webkit-scrollbar-track {
   background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1; /* Gris clair */
-  border-radius: 4px;
+  background: #cbd5e1; 
+  border-radius: 10px;
 }
-
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8; /* Un peu plus foncé au survol */
-}
-
-/* Style spécifique au Mode Sombre */
 .dark ::-webkit-scrollbar-track {
-  background: #0f172a; /* Slate 900 (Fond très sombre) */
+  background: #0f172a; 
 }
-
 .dark ::-webkit-scrollbar-thumb {
-  background: #334155; /* Slate 700 (Gris bleuté) */
+  background: #334155; 
 }
 
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: #475569; /* Slate 600 */
+/* --- VOS ANIMATIONS (Poubelle, etc.) --- */
+@keyframes slideUpFade {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
-/* ... Tes codes précédents ... */
-
-/* Animation Shine (Reflet brillant) */
-@keyframes shine {
-  0% { transform: translateX(-100%) skewX(-15deg); }
-  100% { transform: translateX(200%) skewX(-15deg); }
+.animate-slide-up {
+  animation: slideUpFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.animate-shine {
-  animation: shine 2.5s infinite;
-}
-
-/* Effet Doré pour le texte/icone (Gold Gradient Text) */
-.text-gold-gradient {
-  background: linear-gradient(to bottom right, #fde68a, #f59e0b);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-/* --- ANIMATION POUBELLE (DELETE) --- */
-
-/* Le couvercle qui s'ouvre */
 @keyframes trashLidOpen {
   0% { transform: rotate(0deg); }
-  10% { transform: rotate(-45deg); } /* Ouvre vite */
-  60% { transform: rotate(-45deg); } /* Reste ouvert */
-  80% { transform: rotate(0deg); } /* Ferme */
+  10% { transform: rotate(-45deg); }
+  60% { transform: rotate(-45deg); }
+  80% { transform: rotate(0deg); }
   100% { transform: rotate(0deg); }
 }
 
-/* Le papier qui tombe dedans */
 @keyframes paperFall {
-  0% { 
-    transform: translate(-10px, -40px) rotate(0deg) scale(1); 
-    opacity: 0; 
-  }
-  10% { opacity: 1; } /* Apparaît */
-  40% { 
-    transform: translate(0, 10px) rotate(180deg) scale(0.6); 
-    opacity: 1; 
-  }
-  60% { 
-    transform: translate(5px, 20px) rotate(200deg) scale(0); /* Disparait dans la boite */
-    opacity: 0; 
-  }
+  0% { transform: translate(-10px, -40px) rotate(0deg) scale(1); opacity: 0; }
+  10% { opacity: 1; }
+  40% { transform: translate(0, 10px) rotate(180deg) scale(0.6); opacity: 1; }
+  60% { transform: translate(5px, 20px) rotate(200deg) scale(0); opacity: 0; }
   100% { opacity: 0; }
 }
 
 .animate-trash-lid {
-  transform-origin: right bottom; /* Le pivot est à droite du couvercle */
+  transform-origin: right bottom; 
   animation: trashLidOpen 2s ease-in-out infinite;
 }
 
@@ -109,19 +88,11 @@ body, div, nav, header, main, section, article, aside, footer, button, input, te
   animation: paperFall 2s ease-in-out infinite;
 }
 
-/* --- ANIMATION VIREVOLTANT (ERROR) --- */
-
 @keyframes tumbleRoll {
-  0% { 
-    transform: translateX(-40px) rotate(0deg); 
-    opacity: 0;
-  }
-  10% { opacity: 1; } /* Fade IN */
+  0% { transform: translateX(-40px) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
   90% { opacity: 1; }
-  100% { 
-    transform: translateX(40px) rotate(720deg); 
-    opacity: 0; /* Fade OUT */
-  }
+  100% { transform: translateX(40px) rotate(720deg); opacity: 0; }
 }
 
 .animate-tumble-roll {
