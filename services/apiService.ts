@@ -65,9 +65,15 @@ export const ApiService = {
         
         RÈGLES GÉNÉRALES :
         - Le reste du texte en HTML (<h1>, <p>).
-        - Gère le RTL pour l'arabe.
+        - Toujours garder la police Arial par défaut quelque soit la langue 
+        - Respecter les tailles de polices telles qu'apparente sur le scan
+        - Respecter les couleurs du texte tel qu'il apparait sur le scan
+        - Gère le RTL pour l'arabe.s
+        - Ne jamais ajouter de titre au début (trascription de document ou autre...).
+        - Ne jamais rien ajouter au manuscrit scanné le documment doit commencer par ce avec quoi le manuscrit commence.
+        - Gère le sens d'affichage (tout mettre à gauche pour l'arabe, centrer lorsque le texte apparait centré, et mettre àà gauche lorsque c'est du français / anglais ...etc)
       `;
-      userPrompt = "Transcris ce document en HTML + MathML standard.";
+      userPrompt = "Transcris ce document en HTML + MathML standard, en respectant les polices d'écriture, le style, les couleurs les tailles et tout les éléments visuels àdu manuscrit écrit joint, reproduire fidèlement le manuscrit sans aucun ajout et sans oublier aucun détail ni changer le layout.";
     } else {
       // --- MODE DESIGN (POUR RENDU VISUEL) ---
       systemInstruction = `
