@@ -150,7 +150,7 @@ const Result: React.FC = () => {
       </div>
 
       {/* Contenu */}
-      <div className="relative p-4 max-w-3xl mx-auto min-h-[60vh] flex flex-col">
+      <div className="relative w-full p-4 md:p-6 min-h-[60vh] flex flex-col">
         <div className="text-center mb-6 opacity-50">
           <h2 className="text-2xl font-bold text-gray-800 dark:text-white">{scanData.title}</h2>
           <p className="text-sm text-gray-500">Aperçu du document généré</p>
