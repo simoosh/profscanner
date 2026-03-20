@@ -61,27 +61,22 @@ const Result: React.FC = () => {
   const handleDownload = async () => {
     if (!scanData?.content) return;
     
-    if (scanData.hasMath === true) {
-        setAdLoading(true); 
-        try {
-            await ApiService.downloadWordDoc(scanData.content, scanData.title);
-        } catch (e) {
-            setAdLoading(false);
-            openModal('server-sleep', 'Serveur en réveil...', "Le serveur de conversion démarre. Veuillez patienter 30 secondes et réessayer.");
-        } finally {
-            setAdLoading(false);
-        }
-    } else {
-        const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Export</title></head><body>";
-        const footer = "</body></html>";
-        const sourceHTML = header + scanData.content + footer;
-        const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
-        const fileDownload = document.createElement("a");
-        document.body.appendChild(fileDownload);
-        fileDownload.href = source;
-        fileDownload.download = `${scanData.title}.doc`;
-        fileDownload.click();
-        document.body.removeChild(fileDownload);
+    // TOUT passe désormais par le Backend Render (Pandoc)
+    // Plus de condition 'if (scanData.hasMath)'
+    
+    setAdLoading(true); 
+    try {
+        await ApiService.downloadWordDoc(scanData.content, scanData.title);
+    } catch (e) {
+        // Si le serveur est endormi (Cold Start Render)
+        setAdLoading(false);
+        openModal(
+            'server-sleep', 
+            'Serveur en réveil...', 
+            "Le serveur de conversion démarre (Free Tier). Veuillez patienter quelques secondes et réessayer."
+        );
+    } finally {
+        setAdLoading(false);
     }
   };
 
