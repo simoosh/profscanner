@@ -33,6 +33,7 @@
         "npm:react-dom@^18.2.0",
         "npm:react-router-dom@^6.30.3",
         "npm:react@^18.2.0",
+        "npm:run@^1.5.0",
         "npm:sort-by@^1.2.0",
         "npm:tailwind-merge@^2.2.2",
         "npm:tailwindcss@^3.4.1",
