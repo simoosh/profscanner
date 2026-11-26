@@ -14,7 +14,7 @@
 **Take a photo of a handwritten exam, an exercise sheet or a correction.**<br>
 **Get back a `.docx` you can keep editing in Word, with real equations.**
 
-**[▶ Try it live](https://profscanner.pages.dev)** · [Download](#️-try-it-or-download-it) · [Quick start](#-quick-start) · [Install on your phone](#-install-it-on-your-phone-full-screen) · [Choose a model](#-any-ai-model-your-key) · [How it works](#-how-it-works) · [Roadmap](#-roadmap)
+**[▶ Try it live](https://profscanner.netlify.app)** · [Download](#️-try-it-or-download-it) · [Quick start](#-quick-start) · [Install on your phone](#-install-it-on-your-phone-full-screen) · [Choose a model](#-any-ai-model-your-key) · [How it works](#-how-it-works) · [Roadmap](#-roadmap)
 
 </div>
 
@@ -56,7 +56,7 @@ ProfScanner chains a **vision AI** and a **custom Word generator** so that the r
 
 | | |
 |---|---|
-| ▶ **Live demo** | **[https://profscanner.pages.dev](https://profscanner.pages.dev)**: open it on your phone or computer, pick a model, paste your key, scan. Nothing to install. |
+| ▶ **Live demo** | **[https://profscanner.netlify.app](https://profscanner.netlify.app)**: open it on your phone or computer, pick a model, paste your key, scan. Nothing to install. |
 | 📦 **Download** | The latest build is on the **[Releases page](https://github.com/simoosh/profscanner/releases)**: `profscanner-web-<version>.zip`, a ready-to-host static site (no server, no dependencies). |
 
 **Host the downloaded build:** unzip it and upload the folder to any static host over HTTPS (Netlify drag and drop, GitHub Pages, Cloudflare Pages, your own web server). To test it locally:
@@ -181,7 +181,7 @@ flowchart LR
 
 ## 🌐 Deploy
 
-The live instance runs on **Cloudflare Pages** (https://profscanner.pages.dev) with its relay on a **Cloudflare Worker**. To publish your own, follow the steps below.
+The live instance runs on **Netlify** (https://profscanner.netlify.app) with its relay on a **Cloudflare Worker**. To publish your own, follow the steps below.
 
 ```bash
 npm run build
