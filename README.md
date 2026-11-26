@@ -181,7 +181,7 @@ flowchart LR
 
 ## 🌐 Deploy
 
-The live instance runs on **Netlify** (https://profscanner.netlify.app) with its relay on a **Cloudflare Worker**. To publish your own, follow the steps below.
+The live instance runs on **Netlify** (https://profscanner.netlify.app) with its relay on a **Cloudflare Worker**; the relay URL is set in [`netlify.toml`](netlify.toml) so visitors get the free demo with no setup (they can still change it in the app). To publish your own, follow the steps below.
 
 ```bash
 npm run build

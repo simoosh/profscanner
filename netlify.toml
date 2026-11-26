@@ -1,0 +1,10 @@
+# Build settings for the live instance (Netlify, deployed from GitHub).
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+  # Public address of the relay: new visitors land on the free demo with no setup.
+  # Users can still replace it in the app (Models > Relay). Replace it with YOUR relay when you fork.
+  VITE_PROXY_URL = "https://profscanner-relay.dezlord522.workers.dev"
