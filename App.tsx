@@ -3,6 +3,7 @@ import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-d
 import { ThemeProvider } from './context/ThemeContext';
 import { ProfileProvider, useProfile } from './context/ProfileContext';
 import { Layout } from './components/Layout';
+import { fetchDemoStatus } from './services/ai/demo';
 
 import Home from './pages/Home';
 import Result from './pages/Result';
@@ -39,6 +40,11 @@ const AppRoute = ({ children }: React.PropsWithChildren) => {
 };
 
 function App() {
+  // Ask the relay once at start whether the free demo is enabled, so the default model is a usable one.
+  React.useEffect(() => {
+    fetchDemoStatus().catch(() => {});
+  }, []);
+
   return (
     <ThemeProvider>
       <ProfileProvider>

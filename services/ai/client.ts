@@ -69,7 +69,12 @@ const describeError = (status: number | undefined, body: string): string => {
   if (/unauthori[sz]ed.?client/i.test(text)) {
     return `Ce fournisseur refuse les appels venant d'une application web (seuls certains logiciels sont autorisés). Message : « ${detail} »`;
   }
-  if (status === 401 || status === 403 || /invalid.*(api[_ -]?key|token)|unauthori[sz]ed|API key not valid/i.test(text)) {
+  // Gemini answers 400 (not 401) to a bad key: "Please pass a valid API key".
+  if (
+    status === 401 ||
+    status === 403 ||
+    /invalid.*(api[_ -]?key|token)|unauthori[sz]ed|API key not valid|valid API key|API key.*(missing|invalid|expired)/i.test(text)
+  ) {
     return `Clé API refusée par le fournisseur${detail ? ` : « ${detail} »` : ''}. Vérifiez qu'elle vient bien du même site que l'URL appelée.`;
   }
   if (status === 400) {
