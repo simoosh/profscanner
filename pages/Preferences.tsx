@@ -2,30 +2,31 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 // On importe le hook du contexte qu'on vient de créer pour gérer le thème global
 import { useTheme } from '../context/ThemeContext';
+import { Settings, TIMEOUT_CHOICES } from '../services/settings';
 
 const Preferences: React.FC = () => {
   const navigate = useNavigate();
-  
+
   // On récupère l'état global (darkMode) et la fonction pour le changer (toggleTheme)
   const { darkMode, toggleTheme } = useTheme();
 
-  // États locaux pour les options simulées (Notifications, Historique)
-  // Elles fonctionnent visuellement mais ne sont pas encore liées au backend
-  const [notifications, setNotifications] = useState(true);
-  // On charge la valeur réelle (par défaut true si pas définie)
-  const [saveHistory, setSaveHistory] = useState(() => {
-    return localStorage.getItem('saveHistory') !== 'false';
-  });
+  // Historique : enregistré uniquement sur l'appareil (IndexedDB)
+  const [saveHistory, setSaveHistory] = useState(() => Settings.getSaveHistory());
 
-  // Quand on change l'option, on sauvegarde dans la mémoire du téléphone
+  const [timeoutMinutes, setTimeoutMinutes] = useState(() => Settings.getTimeoutMinutes());
+  const changeTimeout = (minutes: number) => {
+    setTimeoutMinutes(minutes);
+    Settings.setTimeoutMinutes(minutes);
+  };
+
   const toggleSaveHistory = () => {
     const newValue = !saveHistory;
     setSaveHistory(newValue);
-    localStorage.setItem('saveHistory', String(newValue));
+    Settings.setSaveHistory(newValue);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors duration-300 pb-20">
+    <div className="min-h-dvh bg-gray-50 dark:bg-slate-900 transition-colors duration-300 pb-20">
       {/* Header */}
       <div className="bg-white dark:bg-slate-800 p-4 shadow-sm flex items-center gap-3 sticky top-0 z-10 transition-colors border-b dark:border-slate-700">
         <button 
@@ -80,22 +81,6 @@ const Preferences: React.FC = () => {
           <h2 className="text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3 ml-1">Système</h2>
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden transition-colors">
             
-            {/* Toggle Notifications */}
-            <div className="p-4 flex items-center justify-between border-b border-gray-50 dark:border-slate-700">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-red-50 dark:bg-red-900/30 text-red-500 dark:text-red-400 transition-colors">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
-                </div>
-                <span className="font-medium text-gray-700 dark:text-gray-200">Notifications</span>
-              </div>
-              <button 
-                onClick={() => setNotifications(!notifications)}
-                className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 ${notifications ? 'bg-blue-600' : 'bg-gray-300 dark:bg-slate-600'}`}
-              >
-                <div className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${notifications ? 'translate-x-6' : 'translate-x-0'}`} />
-              </button>
-            </div>
-
              {/* Toggle Historique */}
              <div className="p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -104,7 +89,7 @@ const Preferences: React.FC = () => {
                 </div>
                 <div className="flex flex-col">
                     <span className="font-medium text-gray-700 dark:text-gray-200">Sauvegarder l'historique</span>
-                    <span className="text-xs text-gray-400 dark:text-gray-500">Conserver les scans localement</span>
+                    <span className="text-xs text-gray-400 dark:text-gray-500">Conserver les scans sur cet appareil</span>
                 </div>
               </div>
               <button 
@@ -115,13 +100,30 @@ const Preferences: React.FC = () => {
               </button>
             </div>
 
+            {/* Délai maximum d'une transcription */}
+            <div className="p-4 flex items-center justify-between border-t border-gray-50 dark:border-slate-700">
+              <div className="flex flex-col pr-3">
+                <span className="font-medium text-gray-700 dark:text-gray-200">Délai maximum d'un scan</span>
+                <span className="text-xs text-gray-400 dark:text-gray-500">Les modèles gratuits peuvent attendre plusieurs minutes avant de répondre</span>
+              </div>
+              <select
+                value={timeoutMinutes}
+                onChange={(e) => changeTimeout(Number(e.target.value))}
+                className="px-3 py-2 rounded-lg border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-900 text-gray-800 dark:text-gray-100 text-sm"
+              >
+                {TIMEOUT_CHOICES.map((m) => (
+                  <option key={m} value={m}>{m} min</option>
+                ))}
+              </select>
+            </div>
+
           </div>
         </section>
 
         {/* Footer Info */}
         <div className="text-center pt-8">
-            <p className="text-xs text-gray-400 dark:text-gray-600">ProfScanner v1.2.2 (Beta)</p>
-            <p className="text-xs text-gray-300 dark:text-gray-700 mt-1">© 2026 . Slimane Sahnoune, all rights reserved®.</p>
+            <p className="text-xs text-gray-400 dark:text-gray-600">ProfScanner v2.0 (Beta) · open source</p>
+            <p className="text-xs text-gray-300 dark:text-gray-700 mt-1">© 2026 simoosh (SAHNOUNE Slimane)</p>
         </div>
 
       </div>

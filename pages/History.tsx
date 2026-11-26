@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ApiService, ScanResult } from '../services/apiService';
+import { ApiService, ScanResult, formatDuration } from '../services/apiService';
 import { RenameModal } from '../components/RenameModal';
+import { AppModal, ModalType } from '../components/AppModal';
 import { Pencil, FileText, Trash2, Search, X } from 'lucide-react';
 
 export const History: React.FC = () => {
@@ -12,6 +13,16 @@ export const History: React.FC = () => {
   
   // Recherche
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Modale custom (au lieu du confirm natif)
+  const [modalConfig, setModalConfig] = useState<{isOpen: boolean, type: ModalType, title: string, message: string, onConfirm?: () => void}>({
+    isOpen: false, type: 'info', title: '', message: ''
+  });
+
+  const openModal = (type: ModalType, title: string, message: string, onConfirm?: () => void) => {
+    setModalConfig({ isOpen: true, type, title, message, onConfirm });
+  };
+  const closeModal = () => setModalConfig({ ...modalConfig, isOpen: false });
 
   const load = async () => {
     try {
@@ -34,12 +45,18 @@ export const History: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: string, e: React.MouseEvent) => {
+  const handleDelete = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm("Voulez-vous vraiment supprimer ce document ?")) {
-      await ApiService.deleteScan(id);
-      await load();
-    }
+    openModal(
+      'delete',
+      'Supprimer ce document ?',
+      'Cette action est irréversible. Le document sera effacé de votre historique.',
+      async () => {
+        await ApiService.deleteScan(id);
+        await load();
+        closeModal();
+      }
+    );
   };
 
   // Filtrage
@@ -48,8 +65,18 @@ export const History: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 pb-20 transition-colors duration-300">
+    <div className="min-h-dvh bg-gray-50 dark:bg-slate-900 pb-20 transition-colors duration-300">
       
+      {/* MODALE CUSTOM SUPPRESSION */}
+      <AppModal 
+        isOpen={modalConfig.isOpen}
+        type={modalConfig.type}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        onConfirm={modalConfig.onConfirm}
+        onClose={closeModal}
+      />
+
       <RenameModal 
         isOpen={!!editingScan}
         initialValue={editingScan?.title || ""}
@@ -111,16 +138,26 @@ export const History: React.FC = () => {
                   onClick={() => navigate(`/result/${scan.id}`)}
                 >
                   <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg flex items-center justify-center font-bold text-xs flex-shrink-0 transition-colors">
-                    DOC
+                    {scan.pageCount && scan.pageCount > 1 ? `${scan.pageCount}p` : 'DOC'}
                   </div>
                   
                   <div className="flex-1 min-w-0">
                     <h3 className="font-medium text-gray-900 dark:text-white truncate transition-colors pr-2">
                       {scan.title}
                     </h3>
-                    <p className="text-xs text-gray-400 dark:text-gray-500 transition-colors">
-                      {new Date(scan.date).toLocaleDateString()}
-                    </p>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="text-xs text-gray-400 dark:text-gray-500 transition-colors">
+                        {new Date(scan.date).toLocaleDateString()}
+                      </p>
+                      {scan.model && (
+                        <span className="text-xs px-1.5 py-0.5 rounded bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300">
+                          {scan.model}
+                        </span>
+                      )}
+                      {scan.durationMs ? (
+                        <span className="text-xs text-gray-400 dark:text-gray-500">⏱ {formatDuration(scan.durationMs)}</span>
+                      ) : null}
+                    </div>
                   </div>
                 </div>
                 

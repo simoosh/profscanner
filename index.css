@@ -18,6 +18,7 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    min-height: 100dvh; /* dynamic viewport: no jump when the browser bars hide */
     width: 100%;
     overflow-x: hidden;
   }
@@ -60,7 +61,17 @@ body, div, nav, header, main, section, article, aside, footer, button, input, te
   background: #334155; 
 }
 
-/* --- VOS ANIMATIONS (Poubelle, etc.) --- */
+/* --- ANIMATIONS MODALES --- */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalSlideUp {
+  from { opacity: 0; transform: translateY(24px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 @keyframes slideUpFade {
   from { opacity: 0; transform: translateY(20px) scale(0.95); }
   to { opacity: 1; transform: translateY(0) scale(1); }
@@ -69,38 +80,151 @@ body, div, nav, header, main, section, article, aside, footer, button, input, te
   animation: slideUpFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-@keyframes trashLidOpen {
-  0% { transform: rotate(0deg); }
-  10% { transform: rotate(-45deg); }
-  60% { transform: rotate(-45deg); }
-  80% { transform: rotate(0deg); }
-  100% { transform: rotate(0deg); }
+@keyframes errorPulse {
+  0%, 100% { transform: scale(1); opacity: 0.3; }
+  50% { transform: scale(1.8); opacity: 0; }
 }
 
-@keyframes paperFall {
-  0% { transform: translate(-10px, -40px) rotate(0deg) scale(1); opacity: 0; }
-  10% { opacity: 1; }
-  40% { transform: translate(0, 10px) rotate(180deg) scale(0.6); opacity: 1; }
-  60% { transform: translate(5px, 20px) rotate(200deg) scale(0); opacity: 0; }
-  100% { opacity: 0; }
+/* --- ANIMATION SUPPRESSION (document → poubelle) --- */
+@keyframes deleteDocFall {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  20% {
+    transform: translateY(-6px) rotate(-3deg) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(10px) rotate(8deg) scale(0.7);
+    opacity: 0.8;
+  }
+  70% {
+    transform: translateY(16px) rotate(12deg) scale(0.4);
+    opacity: 0.3;
+  }
+  80% {
+    transform: translateY(18px) rotate(15deg) scale(0.2);
+    opacity: 0;
+  }
+  81%, 100% {
+    transform: translateY(0) rotate(0deg) scale(1);
+    opacity: 0;
+  }
 }
 
-.animate-trash-lid {
-  transform-origin: right bottom; 
-  animation: trashLidOpen 2s ease-in-out infinite;
+/* Le cycle complet avec réapparition */
+@keyframes deleteDocCycle {
+  0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+  15% { transform: translateY(-6px) rotate(-3deg) scale(1); opacity: 1; }
+  40% { transform: translateY(10px) rotate(8deg) scale(0.7); opacity: 0.8; }
+  55% { transform: translateY(16px) rotate(12deg) scale(0.4); opacity: 0.3; }
+  65% { transform: translateY(18px) rotate(15deg) scale(0.2); opacity: 0; }
+  66%, 85% { opacity: 0; transform: translateY(0) scale(0.8); }
+  100% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
 }
 
-.animate-paper-fall {
-  animation: paperFall 2s ease-in-out infinite;
+.delete-doc-anim {
+  animation: deleteDocCycle 2.5s ease-in-out infinite;
 }
 
-@keyframes tumbleRoll {
-  0% { transform: translateX(-40px) rotate(0deg); opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { transform: translateX(40px) rotate(720deg); opacity: 0; }
+/* Couvercle : s'ouvre quand le document tombe, se referme après */
+@keyframes deleteLidCycle {
+  0%, 10% { transform: translateY(0) rotate(0deg); }
+  20% { transform: translateY(-8px) rotate(-12deg); }
+  35%, 55% { transform: translateY(-10px) rotate(-15deg); }
+  70% { transform: translateY(0) rotate(0deg); }
+  100% { transform: translateY(0) rotate(0deg); }
 }
 
-.animate-tumble-roll {
-  animation: tumbleRoll 3s linear infinite;
+.delete-lid-anim {
+  transform-origin: center bottom;
+  animation: deleteLidCycle 2.5s ease-in-out infinite;
+}
+
+/* --- ANIMATION TEXTE CHARGEMENT --- */
+@keyframes textFadeSwitch {
+  0% { opacity: 0; transform: translateY(8px); }
+  15% { opacity: 1; transform: translateY(0); }
+  85% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-8px); }
+}
+.animate-text-fade {
+  animation: textFadeSwitch 0.5s ease-out;
+}
+
+/* ══════════════════════════════════════════
+   ONBOARDING — Cartes métier
+   ══════════════════════════════════════════ */
+
+/* Carte active (sélectionnée, affichée en grand) */
+.onboarding-card-active {
+  width: 280px;
+  padding: 24px;
+  border-radius: 30% 70% 60% 40% / 50% 30% 70% 50%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Entrée depuis la droite */
+@keyframes cardEnterRight {
+  from {
+    opacity: 0;
+    transform: perspective(800px) rotateY(-30deg) translateX(60px) scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: perspective(800px) rotateY(0deg) translateX(0) scale(1);
+  }
+}
+
+/* Entrée depuis la gauche */
+@keyframes cardEnterLeft {
+  from {
+    opacity: 0;
+    transform: perspective(800px) rotateY(30deg) translateX(-60px) scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: perspective(800px) rotateY(0deg) translateX(0) scale(1);
+  }
+}
+
+.card-enter-right {
+  animation: cardEnterRight 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.card-enter-left {
+  animation: cardEnterLeft 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Checkmark de succès */
+@keyframes successScaleIn {
+  0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+  50% { transform: scale(1.2) rotate(0deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.onboarding-success-check {
+  animation: successScaleIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Shine effect pour le bouton premium */
+@keyframes shine {
+  0% { transform: translateX(-150%) skewX(-15deg); }
+  100% { transform: translateX(350%) skewX(-15deg); }
+}
+
+.animate-shine {
+  animation: shine 3s ease-in-out infinite;
+}
+/* Full-screen / installed app: keep content out of the notch and the status bar area.
+   (viewport-fit=cover lets the page draw under them; env() gives their size, 0 elsewhere.) */
+#root {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.sticky.top-0 {
+  top: env(safe-area-inset-top, 0px);
 }
