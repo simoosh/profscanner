@@ -1,104 +1,60 @@
-# ProfScanner
+<div align="center">
 
-**Snap a photo of a handwritten page, get back an editable Word document with real, native equations.**
+<img src="docs/hero.svg" alt="ProfScanner: handwritten page in, editable Word document out" width="100%">
 
-ProfScanner is a mobile-first web app built for teachers. You take a picture of a handwritten exam, an exercise sheet or a correction, and the app returns a `.docx` file you can open in Microsoft Word and keep editing. Fractions, roots, systems of equations, French and Arabic (right-to-left) text all come through. The equations are **native Word equations (OMML)**, not images and not flattened text, so you can click on them and edit them in Word's equation editor.
+<br>
 
-> **Project status: beta / proof of concept.** It works for day-to-day use on real exam sheets, but the code still carries prototype shortcuts. These are listed honestly in [Known limitations](#known-limitations) and in the [Roadmap](#roadmap). Contributions are welcome.
+![React](https://img.shields.io/badge/React_18-20232a?style=for-the-badge&logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![Tailwind](https://img.shields.io/badge/Tailwind-0F172A?style=for-the-badge&logo=tailwindcss&logoColor=38BDF8)
+![PWA](https://img.shields.io/badge/PWA-installable-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white)
+![No backend](https://img.shields.io/badge/backend-none-22c55e?style=for-the-badge)
 
----
+**Take a photo of a handwritten exam, an exercise sheet or a correction.**<br>
+**Get back a `.docx` you can keep editing in Word, with real equations.**
 
-## Table of contents
+[Quick start](#-quick-start) · [Install on your phone](#-install-it-on-your-phone-full-screen) · [Choose a model](#-any-ai-model-your-key) · [How it works](#-how-it-works) · [Roadmap](#-roadmap)
 
-- [Why this exists](#why-this-exists)
-- [How it works](#how-it-works)
-- [Repositories](#repositories)
-- [Getting started](#getting-started)
-- [Configuration reference](#configuration-reference)
-- [Project structure](#project-structure)
-- [What the transcription handles](#what-the-transcription-handles)
-- [Known limitations](#known-limitations)
-- [Security notes for self-hosting](#security-notes-for-self-hosting)
-- [Roadmap](#roadmap)
-- [Contributing](#contributing)
-- [License](#license)
-- [Author](#author)
+</div>
 
 ---
 
-## Why this exists
+## 📱 See it
 
-Turning a handwritten math sheet into a clean Word document is slow manual work: retyping text, rebuilding every fraction in the equation editor, redoing the layout. General OCR tools are bad at handwriting and worse at math. And when they do output math, it is usually LaTeX or an image, neither of which a teacher can edit in Word.
+<div align="center">
+<table>
+<tr>
+<td align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/screens/home-dark.png"><img src="docs/screens/home.png" width="190" alt="Home screen"></picture><br><sub><b>Scan</b><br>photo or import</sub></td>
+<td align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/screens/result-dark.png"><img src="docs/screens/result.png" width="190" alt="Result with Arabic text and equations"></picture><br><sub><b>Preview</b><br>Arabic + math, then <i>Download Word</i></sub></td>
+<td align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/screens/models-dark.png"><img src="docs/screens/models.png" width="190" alt="Model selector with live status"></picture><br><sub><b>Any model</b><br>live status dots</sub></td>
+<td align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/screens/history-dark.png"><img src="docs/screens/history.png" width="190" alt="History with model and duration"></picture><br><sub><b>History</b><br>model + scan time</sub></td>
+</tr>
+</table>
+</div>
 
-ProfScanner chains two things:
+## ✨ Why it exists
 
-1. **A multimodal LLM** (Google Gemini) that reads the photo and writes clean HTML, with every formula encoded as **W3C MathML**.
-2. **A conversion pipeline** that turns that HTML into a `.docx` and rewrites each MathML formula into **OMML**, the XML equation format Word uses natively.
+Turning a handwritten math sheet into a clean Word file is slow, manual work: retyping the text, rebuilding every fraction in the equation editor, redoing the layout. Generic OCR is bad at handwriting and worse at math. And when it does output math, it is LaTeX or an image, neither of which a teacher can edit in Word.
 
-Step 2 is the hard part. Word does not render MathML embedded in HTML: it flattens it into broken text. Generic HTML-to-DOCX converters (LibreOffice, most npm libraries) drop it too. Pandoc keeps the equations but loses most of the inline styling (colors, boxes, alignment) that makes the result look like the original sheet. The backend therefore runs a custom pipeline. See [How it works](#how-it-works).
+ProfScanner chains a **vision AI** and a **custom Word generator** so that the result is the same page, typed properly:
 
----
+|  |  |
+|---|---|
+| 🧮 **Native Word equations** | Fractions, roots, limits, sums, systems of equations: real OMML objects you can click and edit, not pictures. |
+| 🌍 **Arabic, French and English together** | Right-to-left text, inline formulas inside Arabic sentences, mixed-direction tables, all laid out correctly. |
+| 🎨 **Layout kept** | Headings, boxed text, tables, side-by-side columns, pen colors, highlighting, grading marks. |
+| 🔌 **Any AI model** | NVIDIA, Google, OpenRouter, Mistral, Anthropic… or any OpenAI-compatible endpoint, even a local Ollama. |
+| 🔒 **Private by design** | No server, no account. Profile, history and keys stay in your browser. |
+| 📲 **Installable** | Add it to your home screen: full screen, no browser bars, works offline for the interface. |
 
-## How it works
-
-```mermaid
-flowchart LR
-    A[Photo<br/>camera or gallery] --> B[Gemini<br/>image → HTML + MathML]
-    B --> C[Preview<br/>sandboxed iframe]
-    B --> D[(Firestore<br/>scan history)]
-    C -->|Download .docx| E
-
-    subgraph E[Converter backend]
-        direction TB
-        E1[1. Extract each MathML formula<br/>MathML → OMML<br/>replace it with a text placeholder]
-        E2[2. HTML → DOCX<br/>CloudConvert / LibreOffice engine]
-        E3[3. Unzip the .docx and replace<br/>each placeholder with its OMML<br/>inside word/document.xml]
-        E1 --> E2 --> E3
-    end
-
-    E --> F[.docx with<br/>native Word equations]
-```
-
-### Step by step
-
-| # | Where | What happens |
-|---|-------|--------------|
-| 1 | Browser | The user picks or takes a photo (`<input capture="environment">`). |
-| 2 | Browser → Gemini | The image is sent as base64 to `gemini-3.1-pro-preview` together with a long system prompt (in `services/apiService.ts`). The prompt requires inline CSS only, standard fonts, `dir="rtl"` for Arabic, and strict, well-formed MathML for every formula. |
-| 3 | Browser | The returned HTML is rendered in an `<iframe sandbox="">`, so generated markup cannot run scripts or leak styles into the app. A title is suggested from the first words. |
-| 4 | Browser → Firestore | If the user is logged in and has history enabled, the scan is saved under `users/{uid}/scans/{scanId}`. |
-| 5 | Browser → backend | On download, the HTML is wrapped in a UTF-8 document and `POST`ed to the converter backend's `/convert` endpoint. |
-| 6 | Backend | `mathProcessor.js` extracts every `<math>` element, converts it to OMML with [`mathml2omml`](https://www.npmjs.com/package/mathml2omml), and puts an invisible placeholder (`$$$MATH_OMML_N$$$`) in its place. |
-| 7 | Backend → CloudConvert | The math-free HTML is converted to `.docx` (CloudConvert, `office` engine = LibreOffice). |
-| 8 | Backend | `docxPatcher.js` opens the `.docx` (a ZIP), finds each placeholder in `word/document.xml`, including placeholders Word split across several text runs, and replaces it with the OMML while keeping the formatting of the surrounding text. |
-| 9 | Backend → Browser | The patched `.docx` is streamed back and downloaded. |
-
-The backend is documented in detail in its own repository: [ProfScan_CloudCovert_backend](https://github.com/simoosh/ProfScan_CloudCovert_backend).
+> **Status: beta.** It works on real exam sheets, but quality depends on the photo and on the model you pick. See [Limitations](#-limitations).
 
 ---
 
-## Repositories
+## 🚀 Quick start
 
-| Repository | Role | Status |
-|------------|------|--------|
-| [`simoosh/profscanner`](https://github.com/simoosh/profscanner) *(this repo)* | React front-end, Gemini prompting, history | Active |
-| [`simoosh/ProfScan_CloudCovert_backend`](https://github.com/simoosh/ProfScan_CloudCovert_backend) | HTML + MathML → DOCX converter (Node / Express) | Active |
-| [`simoosh/profscan-render-backend`](https://github.com/simoosh/profscan-render-backend) | Earlier Pandoc-based converter (Docker) | Archived: kept equations, lost styling |
-
----
-
-## Getting started
-
-### Prerequisites
-
-- **Node.js 18+** and npm
-- A **Google Gemini API key**: get one for free at [Google AI Studio](https://aistudio.google.com/app/apikey). Check that the model in `services/apiService.ts` is available on your tier; switch to a Flash model if it isn't.
-- A **Firebase project** (free Spark plan is enough) with:
-  - **Authentication** → Email/Password and Google providers enabled
-  - **Cloud Firestore** enabled
-- A running instance of the **converter backend**: see [its README](https://github.com/simoosh/ProfScan_CloudCovert_backend).
-
-### 1. Clone and install
+**Prerequisites:** Node.js 18+ and npm.
 
 ```bash
 git clone https://github.com/simoosh/profscanner.git
@@ -112,172 +68,203 @@ cd profscanner
 npm install
 ```
 
-### 2. Add your Gemini key
-
-Create a `.env.local` file at the project root (it is git-ignored):
-
-```env
-VITE_GEMINI_API_KEY=your_gemini_api_key
-```
-
-> Read [Security notes](#security-notes-for-self-hosting) before deploying this anywhere public: any `VITE_*` variable ends up in the JavaScript bundle.
-
-### 3. Point the app at your Firebase project
-
-Replace the `firebaseConfig` object in **`firebase.ts`** with the web config of your own project (Firebase console → Project settings → Your apps → Web app).
-
-Then apply Firestore security rules that restrict each user to their own scans:
-
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /users/{uid}/scans/{scanId} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
-    }
-  }
-}
-```
-
-### 4. Point the app at your converter
-
-The converter URL is currently hard-coded in **`services/apiService.ts`** (`downloadWordDoc`). Change it to your backend, for example `http://localhost:3000/convert` for local development.
-
-### 5. Run
-
 ```bash
 npm run dev
 ```
 
-The dev server listens on all interfaces (`--host`), so you can open it from your phone on the same Wi-Fi network to test the camera. Note that browsers only allow camera capture on `localhost` or over HTTPS.
+Open the printed URL. The app asks for your profession and a few details, then sends you to **AI model** to pick a model and paste the key of its provider. There is **no `.env` file to configure**: keys are entered in the app.
 
-Production build:
+> The dev server listens on your local network, so you can open it from a phone on the same Wi-Fi. Browsers only allow the camera on `localhost` or HTTPS: on a phone, use the gallery picker, or [deploy](#-deploy) over HTTPS.
+
+---
+
+## 📲 Install it on your phone (full screen)
+
+A web page **cannot hide the browser's address bar by itself**: Chrome and Safari forbid it. What works is installing the app, which then opens in its own window with no browser bars at all.
+
+| Device | How |
+|---|---|
+| **Android (Chrome)** | Tap **Install** on the banner at the top of the home screen (or **Profile → Install**). The app opens full screen from its icon. A **Full screen now** button is also available without installing. |
+| **iPhone / iPad (Safari)** | Tap **Share** → **Add to Home Screen**, then open ProfScanner from the new icon. Safari has no install prompt on iOS, the banner shows these steps. |
+| **Desktop (Chrome / Edge)** | Click the install icon in the address bar. |
+
+Under the hood: a web app manifest (`standalone`, with `fullscreen` preferred), maskable icons, a service worker that caches only the interface (never scans or keys), `viewport-fit=cover` and safe-area insets for notches, and `dvh` units so layouts do not jump when the browser bars hide.
+
+---
+
+## 🤖 Any AI model, your key
+
+Open **Profile → AI model**. Models are grouped by provider; tap a provider to enter its key, tap a model to select it. Each model shows a **live status**:
+
+| Dot | Meaning |
+|:---:|---|
+| 🟢 | **Working**: first output arrived in under 8 s |
+| 🔴 | **Slow**: first output after 8 s, or nothing after 90 s (free queues can last minutes: raise the scan timeout in Preferences) |
+| ⚪ | **Unavailable**: no key, relay needed, key refused, quota reached, model retired… the reason is shown |
+| ◯ | **Not tested** yet |
+
+The status comes from real scans and from a tiny test request (a 16×16 image) that stops at the **first token**, so reasoning models that think for minutes still count as working, and free quota is barely touched.
+
+<details>
+<summary><b>Built-in providers and models</b> (free tiers change often: figures are indicative, checked November 2026)</summary>
+
+<br>
+
+| Provider | Vision models | Free tier | Browser calls |
+|---|---|---|:---:|
+| **Free demo** (your relay) | GLM-5.3 Flash | A few scans per visitor per day on the maintainer's key | via relay |
+| **[NVIDIA NIM](https://build.nvidia.com)** | GLM-5.3 Flash, Nemotron 3.5 Super VL, Mistral Large 4, Kimi K3.1 Pro | ~40 requests/min, no card. *Trial terms: testing and evaluation only* | ❌ [relay](proxy/README.md) |
+| **[Google Gemini](https://aistudio.google.com)** | 3.5 Flash-Lite, 3.1 Flash-Lite, 3.8 Flash, 4 Hydrogen, 3.5 Flash, 3.1 Pro | ~500 requests/day on Flash-Lite, ~20/day on Flash | ✅ |
+| **[OpenRouter](https://openrouter.ai)** | Gemma 4 31B and 26B, Nemotron 3.5 Super VL (`:free`) | 20 req/min, 50 req/day, shared and often saturated | ✅ |
+| **[Mistral](https://console.mistral.ai)** | Mistral Small, Pixtral Large | "Experiment" plan, requires accepting data use for training | ✅ |
+| **[Z.ai](https://z.ai)** | GLM-4.6V Flash | Listed as free, but the API may require a funded account | ❌ relay |
+| **[SiliconFlow](https://siliconflow.com)** | Qwen3-VL 30B | No free vision model confirmed. Keys are per site (`.com` ≠ `.cn`) | ✅ |
+| **[Anthropic](https://console.anthropic.com)** | Claude Sonnet 5.5 | Paid | ✅ |
+
+</details>
+
+**Custom models.** **Modèle perso**, at the bottom of the list, adds any endpoint: name, protocol (OpenAI-compatible or Anthropic), base URL, model id, key, and whether to go through the relay. It covers Groq, Together, Cerebras, a self-hosted vLLM, or a local [Ollama](https://ollama.com) / LM Studio (`http://localhost:11434/v1`, no key).
+
+**What we saw in practice** (exam sheets in French and Arabic with complex math and layout): Gemini 4 Hydrogen gave an excellent result on Arabic with complex formulas and tables; Gemini 3.5 Flash-Lite is good and generous on the free quota; Nemotron 3.5 Super VL is fast and fine for French and English math, but weak on Arabic with elaborate layout. Test with your own documents.
+
+**Reasoning models.** Some free models "think" for many minutes before writing. The app asks them to answer directly when a provider supports it, shows the thinking progress live, and lets you set the scan timeout (5 to 60 min).
+
+---
+
+## 🔧 How it works
+
+```mermaid
+flowchart LR
+    A["📷 Photos<br/>1 to 15 pages"] -->|"downscaled 2048 px"| B["🤖 Vision model<br/>any provider · your key"]
+    B -->|"HTML + MathML<br/>streamed"| C[("💾 IndexedDB<br/>history on device")]
+    B --> D["👁 Sandboxed preview"]
+    D -->|Download| E
+
+    subgraph E ["📄 Word export, in the browser"]
+        direction TB
+        E1["MathML → OMML<br/>mathml2omml + fixes"]
+        E2["HTML → DOCX<br/>html-to-docx"]
+        E3["RTL pass<br/>runs · tables · fonts"]
+        E1 --> E2 --> E3
+    end
+
+    E --> F["✅ .docx with native equations"]
+```
+
+1. **Capture.** One to fifteen photos, plus optional instructions (fix spelling, add a summary…).
+2. **Transcription.** Photos are downscaled and sent to the selected model with a guided system prompt (`services/apiService.ts`): analyse the page first, then write HTML from exact templates that the Word converter can render (header columns, margin grades, boxes, tables, RTL, MathML). The answer is streamed.
+3. **Storage.** The result is saved on the device, with the model used and the scan duration.
+4. **Preview.** Generated HTML is shown in an `<iframe sandbox="">`: it can never run scripts or reach your keys.
+5. **Word export.** [`html-to-docx`](https://github.com/TurboDocx/html-to-docx) builds the file in the browser; each `<math>` goes through `services/mathConverter.ts`, which converts it with [`mathml2omml`](https://www.npmjs.com/package/mathml2omml) and repairs what that library misses: upright function names, stretchy brackets around fractions and roots, the big brace of systems of equations, stray text Word would drop.
+6. **Right-to-left pass.** Arabic runs are marked RTL so digits, colons and parentheses stay in order; alignment and table columns are mirrored; complex-script bold, size and font are set.
+
+> MathML support in html-to-docx was written for this project and proposed upstream in [TurboDocx/html-to-docx#271](https://github.com/TurboDocx/html-to-docx/pull/271). Until it is merged, a build of that branch is vendored in [`vendor/html-to-docx/`](vendor/html-to-docx/README.md).
+
+---
+
+## 🌐 Deploy
 
 ```bash
 npm run build
 ```
 
-The static output lands in `dist/` and can be served by any static host (Netlify, Vercel, GitHub Pages, Cloudflare Pages…). The app uses a `HashRouter`, so no rewrite rules are needed.
+`dist/` is a fully static site: host it on GitHub Pages, Netlify, Vercel, Cloudflare Pages or any web server. It uses relative paths and a `HashRouter`, so it works from any sub-folder with no rewrite rules. It holds no secret: every visitor brings their own key. Serve it over **HTTPS** (camera, install and service worker require it).
+
+### Optional relay: CORS + free demo
+
+NVIDIA NIM, Z.ai, GitHub Models and SambaNova do not send CORS headers, so a browser cannot call them directly. [`proxy/`](proxy/README.md) holds a small **Cloudflare Worker** (free plan) that:
+
+- **relays** requests to an allow-list of provider hosts and adds CORS headers. It stores nothing; the user's key passes through;
+- optionally serves a **free demo**: visitors scan without any key on the maintainer's key (a Worker secret, never sent to the browser), capped per visitor per day, per day overall and per minute, with a single allowed model and capped output and request size.
+
+```bash
+VITE_PROXY_URL=https://profscanner-relay.<account>.workers.dev npm run build
+```
+
+With a relay URL in the build, new visitors land directly on the free demo. Read the safeguards and caveats (provider terms, abuse, privacy) in [`proxy/README.md`](proxy/README.md) before enabling it.
 
 ---
 
-## Configuration reference
-
-| Setting | Location | Purpose |
-|---------|----------|---------|
-| `VITE_GEMINI_API_KEY` | `.env.local` | Gemini API key used by the browser to transcribe images |
-| `MODEL_NAME` | `services/apiService.ts` | Gemini model (default `gemini-3.1-pro-preview`) |
-| `firebaseConfig` | `firebase.ts` | Firebase project used for auth and history |
-| Converter URL | `services/apiService.ts` → `downloadWordDoc` | Endpoint of the HTML → DOCX backend |
-| `saveHistory` | `localStorage`, toggled in *Preferences* | Whether scans are saved to Firestore |
-| Theme | `localStorage`, toggled in *Preferences* | Light / dark mode |
-
----
-
-## Project structure
+## 🗂 Project structure
 
 ```
-profscanner/
-├── App.tsx                  # Routes (HashRouter) + public/protected route guards
-├── firebase.ts              # Firebase init (auth + Firestore) ← used by the app
+├── App.tsx                     # Routes; onboarding until a local profile exists
+├── components/
+│   └── InstallCard.tsx         # Install / full-screen banner
 ├── services/
-│   └── apiService.ts        # Gemini call + prompts, Firestore CRUD, .docx download
-├── context/
-│   ├── AuthContext.tsx      # Email/password + Google sign-in
-│   └── ThemeContext.tsx     # Dark mode
-├── pages/
-│   ├── Home.tsx             # Capture / upload, "math mode" toggle
-│   ├── Result.tsx           # Sandboxed preview, rename, download
-│   ├── History.tsx          # Saved scans
-│   ├── Login.tsx, Signup.tsx
-│   └── Profile.tsx, PersonalInfo.tsx, Preferences.tsx
-├── components/              # Layout, header, bottom nav, modals, inputs
-│
-│   # Legacy, not used by the current flow (scheduled for removal):
-├── firebaseConfig.ts        # Duplicate Firebase init
-├── services/queueSystem.ts  # Simulated "server busy" queue (random)
-└── netlify/functions/scan.ts# Old server-side Gemini call (table-based layout, no MathML)
+│   ├── apiService.ts           # Guided prompt, transcription call, local history, Word export entry
+│   ├── ai/
+│   │   ├── catalog.ts          # Built-in providers and vision models
+│   │   ├── registry.ts         # Built-in + custom models, availability, selection
+│   │   ├── client.ts           # OpenAI-compatible and Anthropic calls: streaming, timeout, error mapping
+│   │   ├── health.ts           # Green / red / grey status from scans and first-token tests
+│   │   ├── demo.ts             # Free demo status and quota left (from the relay)
+│   │   └── imagePrep.ts        # Photo downscaling
+│   ├── docxExport.ts           # HTML normalisation, html-to-docx, RTL post-processing
+│   ├── mathConverter.ts        # MathML → OMML and repairs
+│   ├── install.ts              # Install prompt and Fullscreen API
+│   ├── settings.ts             # Keys, selected model, custom models, timeout, relay URL
+│   ├── storage.ts              # IndexedDB stores
+│   └── professionRegistry.ts   # Professions, onboarding questions, home actions
+├── pages/                      # Onboarding, Home, Customize, Result, History, Models, Profile…
+├── public/                     # Manifest, icons, service worker
+├── proxy/                      # Cloudflare Worker: CORS relay + capped free demo
+└── vendor/html-to-docx/        # html-to-docx build with MathML support (MIT), temporary
 ```
 
 ---
 
-## What the transcription handles
+## 🔐 Privacy and security
 
-The prompt and pipeline were tuned on real Algerian and French school documents:
-
-- **Math**: fractions, roots, powers and indices, sums, limits, systems of equations, intervals, inline and display equations, all as editable Word equations
-- **Arabic (RTL) and French (LTR) in the same document**, including inline formulas inside Arabic sentences
-- **Layout**: headings, numbered exercises, lists, tables, boxed text (rendered as one-cell tables), centered blocks
-- **Pen colors, highlighting and underlining**, carried over as inline styles
-- **Grading marks** (circled scores in the margin)
-- **Crossed-out text is dropped**: only the final version is transcribed
-
-Transcription quality depends first on the model. A blurry photo or messy handwriting will produce wrong or missing formulas, and no converter can fix that.
+- **Your data stays on the device.** Profile, history and settings live in the browser (IndexedDB, localStorage). *Profile → Erase all my data* wipes everything.
+- **Images go only to the AI provider you selected**, through your relay if that provider needs one, when a scan starts. They are then subject to that provider's terms; some free tiers (Mistral Experiment, NVIDIA trial) may use requests to improve their models. Do not scan documents you may not share with that provider.
+- **API keys are stored in plain text in the browser**, like any client-side credential. Delete them from the app on shared computers.
+- **AI-generated HTML is never injected into the app.** The transcription and the modification report render in `<iframe sandbox="">` (no scripts, isolated origin), so a malicious image cannot run code and steal a key.
+- **The service worker never caches scans, keys or provider calls**: only the interface files.
 
 ---
 
-## Known limitations
+## 🚧 Limitations
 
-Being upfront about the current state:
-
-**Front-end**
-- **The "math mode" toggle has no effect.** Both branches send the same prompt, and every download goes through the math-aware converter.
-- **The "watch a video to unlock" screen is a placeholder.** There is no ad: it waits 2 seconds, then downloads.
-- **Not an installable PWA yet**: there is no web app manifest and no service worker. It is a mobile-first single-page app.
-- **The Gemini call happens in the browser**, which means the API key ships in the bundle. Fine for local use, not for a public deployment. See below.
-- Single image per scan; multi-page documents have to be scanned page by page.
-- Some leftover dependencies are unused (`localforage`, `match-sorter`, `sort-by`, `run`, `dotenv`).
-
-**Converter** (details in the backend README)
-- Relies on **CloudConvert**, a paid third-party API, for the HTML → DOCX step.
-- The placeholder patcher has known bugs: text containing `<`, `>` or `&` in the same paragraph as an equation gets double-escaped, and two equations that end up in the same Word text run can be duplicated or produce an invalid file.
-- When patching fails, the safety net returns the document **without** the equations: the placeholders are invisible (1pt transparent text), so formulas silently disappear instead of showing up as raw text.
+- **Transcription quality is the ceiling.** A blurry photo or messy handwriting produces wrong formulas, and no converter can fix that. Check the result before printing. Small free models are noticeably weaker than large ones.
+- `mathml2omml` does not cover every construct: rare MathML may come out flattened in Word.
+- Free tiers are fragile: quotas shrink, models get retired or queue for minutes. The status dots exist for that reason.
+- The first Word export downloads the generator (~500 KB gzipped). Later exports are instant.
+- A browser cannot force full screen by itself: install the app (see above).
+- The *math mode* toggle currently sends the same prompt as the default mode.
+- Several professions are marked "coming soon"; only the teacher flow is tuned. The UI is in French only.
 
 ---
 
-## Security notes for self-hosting
+## 🗺 Roadmap
 
-- **Never deploy a build that has `VITE_GEMINI_API_KEY` set to your own key on a public URL.** Vite inlines every `VITE_*` variable into the JavaScript bundle; anyone can open DevTools and copy it. Until a proxy or bring-your-own-key mode lands (see Roadmap), either keep the app private or restrict the key in Google Cloud Console (HTTP referrer restriction + API restriction to the Generative Language API).
-- **The Firebase web `apiKey` is not a secret.** It identifies the project, and access is enforced by Firestore security rules, so make sure you apply rules like the ones above.
-- **Protect your converter.** The backend has no authentication and allows any origin. If it holds a paid CloudConvert key, anyone who finds the URL can spend your credits. Restrict CORS to your front-end origin and add rate limiting before exposing it.
-- AI-generated HTML is always rendered in an `<iframe sandbox="">` with no permissions. Keep it that way.
-
----
-
-## Roadmap
-
-The goal is a **100% free, fully open-source** pipeline with no paid third-party service in the loop.
-
-- [ ] **Drop CloudConvert**: generate the `.docx` directly (in the browser or in Node), writing OMML straight into the document. This removes the placeholder/patching step and its bugs.
-- [ ] **Extract the converter into a standalone library**: HTML (inline CSS, RTL) + MathML → DOCX with native equations, usable on its own from npm.
-- [ ] **Bring-your-own-key**: each user pastes their own free Gemini key, stored locally on their device. No shared key, no backend needed for transcription.
-- [ ] **Optional cloud**: local history (IndexedDB) by default, Firebase only if configured.
-- [ ] Real PWA: manifest, service worker, offline history.
-- [ ] Multi-page scans merged into one document.
-- [ ] LaTeX input (`$…$`) in addition to MathML.
-- [ ] Remove dead code and unused dependencies; move hard-coded URLs and config to environment variables.
-- [ ] Add a license (see below).
+- [ ] Switch from the vendored html-to-docx to the npm release once [TurboDocx/html-to-docx#271](https://github.com/TurboDocx/html-to-docx/pull/271) is merged
+- [ ] Offline history and queued scans (the interface already works offline)
+- [ ] LaTeX input (`$…$`) in addition to MathML
+- [ ] Export / import of the local history (backup, move to another device)
+- [ ] Regression test suite built from real documents
+- [ ] UI translations (Arabic, English)
 
 ---
 
-## Contributing
+## 🤝 Contributing
 
 Issues and pull requests are welcome, especially:
 
-- **Failing documents**: if a scan produces a broken or wrong `.docx`, open an issue with the photo (if you can share it) and the generated HTML. These are the most useful test cases.
-- Improvements to the converter's DOCX/OMML handling.
-- Translations of the UI (currently French).
+- **Documents that convert badly.** Open an issue with the generated HTML (and the photo if you can share it): these are the most useful test cases.
+- Improvements to `services/mathConverter.ts` for MathML constructs that come out wrong in Word.
+- Prompt improvements for other subjects and languages, and new models for the catalog (`services/ai/catalog.ts`).
 
-Before opening a PR, make sure `npm run build` passes (it runs the TypeScript check).
-
----
-
-## License
-
-**No license has been chosen yet.** Until a `LICENSE` file is added, the code is technically "all rights reserved", even though it is publicly visible. One will be added soon.
+Run `npm run build` before opening a PR (it type-checks the project).
 
 ---
 
-## Author
+## 📄 Credits and license
 
 Built by **[simoosh](https://github.com/simoosh)** (SAHNOUNE Slimane).
+
+Uses [html-to-docx](https://github.com/TurboDocx/html-to-docx) (MIT) and [mathml2omml](https://github.com/fiduswriter/mathml2omml) (LGPL-3.0).
+
+**No license has been chosen yet for this repository.** Until a `LICENSE` file is added, the code is publicly visible but not formally open source.
+
+<div align="center"><sub>Made for teachers who have better things to do than retype fractions.</sub></div>
