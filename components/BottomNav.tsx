@@ -10,7 +10,10 @@ export const BottomNav: React.FC = () => {
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 px-6 py-2 flex justify-between items-center z-50 transition-colors duration-300">
+    <div
+      style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}
+      className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 px-6 pt-2 flex justify-between items-center z-50 transition-colors duration-300"
+    >
       {navItems.map(({ path, icon: Icon, label }) => (
         <NavLink
           key={path}

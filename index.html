@@ -2,16 +2,25 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>SecretarIA</title>
-    <meta name="description" content="SecretarIA — Votre secrétaire intelligent propulsé par l'IA" />
-    <!-- On charge la police -->
+    <!-- viewport-fit=cover: use the whole screen, notches included (safe areas handled in CSS) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>ProfScanner</title>
+    <meta name="description" content="ProfScanner : photographiez une page manuscrite, obtenez un document Word éditable avec de vraies équations." />
+
+    <!-- Installable app (PWA): once added to the home screen it opens full screen, without the browser bars -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#05080f" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="ProfScanner" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   </head>
   <body>
     <div id="root"></div>
-    <!-- CORRECTION ICI : On pointe vers la racine /index.tsx -->
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>

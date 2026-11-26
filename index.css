@@ -18,6 +18,7 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    min-height: 100dvh; /* dynamic viewport: no jump when the browser bars hide */
     width: 100%;
     overflow-x: hidden;
   }
@@ -218,4 +219,12 @@ body, div, nav, header, main, section, article, aside, footer, button, input, te
 
 .animate-shine {
   animation: shine 3s ease-in-out infinite;
+}
+/* Full-screen / installed app: keep content out of the notch and the status bar area.
+   (viewport-fit=cover lets the page draw under them; env() gives their size, 0 elsewhere.) */
+#root {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.sticky.top-0 {
+  top: env(safe-area-inset-top, 0px);
 }
