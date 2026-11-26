@@ -18,13 +18,18 @@ export const fetchDemoStatus = async (force = false): Promise<DemoStatus | null>
   if (!force && cache && cache.url === proxy && Date.now() - cache.at < CACHE_MS) return cache.status;
   try {
     const response = await fetch(`${proxy}/demo/status`);
-    if (!response.ok) return { enabled: false };
-    const status = (await response.json()) as DemoStatus;
+    const status: DemoStatus = response.ok ? ((await response.json()) as DemoStatus) : { enabled: false };
     cache = { url: proxy, at: Date.now(), status };
     return status;
   } catch {
     return null;
   }
+};
+
+/** Last status received from the relay (null until the first answer): lets synchronous code decide. */
+export const getCachedDemoStatus = (): DemoStatus | null => {
+  const proxy = Settings.getProxyUrl();
+  return cache && cache.url === proxy ? cache.status : null;
 };
 
 export const invalidateDemoStatus = () => {

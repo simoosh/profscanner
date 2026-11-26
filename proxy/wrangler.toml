@@ -3,9 +3,9 @@ main = "worker.js"
 compatibility_date = "2026-11-01"
 
 [vars]
-# Origins allowed to use the relay. Demo mode stays OFF while this is "*".
-# ALLOWED_ORIGINS = "https://simoosh.github.io,http://localhost:5173"
-ALLOWED_ORIGINS = "*"
+# Origins allowed to use the relay (these are the live instance: replace with YOUR app's address).
+# Demo mode stays OFF while this is "*".
+ALLOWED_ORIGINS = "https://profscanner.netlify.app,http://localhost:5173"
 
 # Upstream hosts for the CORS relay (defaults to NVIDIA, Z.ai, BigModel, GitHub Models, SambaNova).
 # ALLOWED_HOSTS = "integrate.api.nvidia.com,api.z.ai"

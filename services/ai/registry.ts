@@ -1,4 +1,5 @@
 import { Settings } from '../settings';
+import { getCachedDemoStatus } from './demo';
 import {
   BUILTIN_MODELS,
   DEFAULT_MODEL_KEY,
@@ -50,7 +51,13 @@ export const getApiKeyFor = (entry: ModelEntry): string => {
 export const unavailabilityReason = (entry: ModelEntry): string | null => {
   const provider = findProvider(entry.providerId);
   if (!provider) return 'Fournisseur inconnu.';
-  if (provider.demo) return Settings.getProxyUrl() ? null : 'Démo indisponible : aucun relais configuré.';
+  if (provider.demo) {
+    if (!Settings.getProxyUrl()) return 'Démo indisponible : aucun relais configuré.';
+    const demo = getCachedDemoStatus();
+    if (demo && !demo.enabled) return 'Démo non activée sur ce relais.';
+    if (demo && demo.remaining === 0) return 'Quota démo du jour épuisé. Ajoutez votre propre clé pour continuer.';
+    return null; // status not known yet: assume available, the relay answers clearly if not
+  }
   if (provider.needsProxy && !Settings.getProxyUrl()) {
     return 'Ce fournisseur bloque les appels depuis un navigateur : configurez un relais CORS.';
   }
@@ -75,7 +82,9 @@ export const getSelectedModel = (): ModelEntry => {
   const models = listModels();
   const selected = models.find((m) => m.key === Settings.getSelectedModelKey());
   if (selected) return selected;
-  const fallbackKey = Settings.getProxyUrl() ? DEFAULT_MODEL_KEY_WITH_PROXY : DEFAULT_MODEL_KEY;
+  // The free demo is the default only when the relay is configured AND reports it enabled.
+  const demoAvailable = !!Settings.getProxyUrl() && getCachedDemoStatus()?.enabled === true;
+  const fallbackKey = demoAvailable ? DEFAULT_MODEL_KEY_WITH_PROXY : DEFAULT_MODEL_KEY;
   return models.find((m) => m.key === fallbackKey) || models[0];
 };
 
