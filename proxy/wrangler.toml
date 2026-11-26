@@ -15,10 +15,13 @@ ALLOWED_ORIGINS = "https://profscanner.netlify.app,http://localhost:5173"
 # Enable it by setting the key as a secret:  npx wrangler secret put DEMO_API_KEY
 # Default upstream is NVIDIA NIM; any OpenAI-compatible chat completions URL works.
 # DEMO_UPSTREAM_URL = "https://integrate.api.nvidia.com/v1/chat/completions"
-DEMO_MODELS = "z-ai/glm-5.3-flash"
-DEMO_PER_IP_PER_DAY = "10"
-DEMO_GLOBAL_PER_DAY = "300"
-DEMO_MAX_PER_MINUTE = "30"
+# Live instance: Google Gemini (free tier, ~500 requests/day per key) via its OpenAI-compatible endpoint.
+DEMO_UPSTREAM_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+DEMO_MODELS = "gemini-3.5-flash-lite"
+# Sized for ~10 regular users, with headroom under the free daily quota.
+DEMO_PER_IP_PER_DAY = "15"
+DEMO_GLOBAL_PER_DAY = "200"
+DEMO_MAX_PER_MINUTE = "10"
 DEMO_MAX_TOKENS = "16384"
 DEMO_MAX_BODY_BYTES = "8000000"
 

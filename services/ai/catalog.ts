@@ -107,7 +107,7 @@ const NO_THINKING = {
 };
 
 export const BUILTIN_MODELS: ModelEntry[] = [
-  model('demo', 'z-ai/glm-5.3-flash', 'GLM-5.3 Flash', { free: true, note: 'Pour essayer. Ajoutez votre clé pour un usage régulier.' }),
+  model('demo', 'gemini-3.5-flash-lite', 'Gemini 3.5 Flash-Lite', { free: true, note: 'Pour essayer, bon en arabe. Ajoutez votre clé pour un usage régulier.' }),
 
   model('nvidia', 'z-ai/glm-5.3-flash', 'GLM-5.3 Flash', { free: true, note: 'Grand modèle multimodal (MoE 320B), 1M de contexte.', extraBody: NO_THINKING }),
   model('nvidia', 'nvidia/nemotron-3.5-super-vl-120b-a12b', 'Nemotron 3.5 Super VL', {
@@ -148,7 +148,7 @@ export const BUILTIN_MODELS: ModelEntry[] = [
 ];
 
 /** Default when a relay is configured (zero-config demo) and when it is not. */
-export const DEFAULT_MODEL_KEY_WITH_PROXY = 'demo/z-ai/glm-5.3-flash';
+export const DEFAULT_MODEL_KEY_WITH_PROXY = 'demo/gemini-3.5-flash-lite';
 export const DEFAULT_MODEL_KEY = 'openrouter/google/gemma-4-31b-it:free';
 
 export const getProvider = (id: string) => PROVIDERS.find((p) => p.id === id);
