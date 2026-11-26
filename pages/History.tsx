@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ApiService, ScanResult } from '../services/apiService';
+import { ApiService, ScanResult, formatDuration } from '../services/apiService';
 import { RenameModal } from '../components/RenameModal';
 import { AppModal, ModalType } from '../components/AppModal';
 import { Pencil, FileText, Trash2, Search, X } from 'lucide-react';
@@ -65,7 +65,7 @@ export const History: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 pb-20 transition-colors duration-300">
+    <div className="min-h-dvh bg-gray-50 dark:bg-slate-900 pb-20 transition-colors duration-300">
       
       {/* MODALE CUSTOM SUPPRESSION */}
       <AppModal 
@@ -145,13 +145,18 @@ export const History: React.FC = () => {
                     <h3 className="font-medium text-gray-900 dark:text-white truncate transition-colors pr-2">
                       {scan.title}
                     </h3>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <p className="text-xs text-gray-400 dark:text-gray-500 transition-colors">
                         {new Date(scan.date).toLocaleDateString()}
                       </p>
-                      {scan.docxReady && (
-                        <span className="w-2 h-2 bg-green-500 rounded-full" title="DOCX prêt" />
+                      {scan.model && (
+                        <span className="text-xs px-1.5 py-0.5 rounded bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300">
+                          {scan.model}
+                        </span>
                       )}
+                      {scan.durationMs ? (
+                        <span className="text-xs text-gray-400 dark:text-gray-500">⏱ {formatDuration(scan.durationMs)}</span>
+                      ) : null}
                     </div>
                   </div>
                 </div>

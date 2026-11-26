@@ -8,14 +8,13 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
-  const isAuthPage = ['/login', '/signup'].includes(location.pathname);
-  const isFullscreenPage = location.pathname.startsWith('/result') 
+  const isFullscreenPage = location.pathname.startsWith('/result')
     || location.pathname === '/customize'
     || location.pathname === '/onboarding'
     || location.pathname === '/report-builder'
     || location.pathname === '/create-flow';
 
-  const showBottomNav = !isAuthPage && !isFullscreenPage;
+  const showBottomNav = !isFullscreenPage;
 
   return (
     <div className="flex-1 flex flex-col w-full relative transition-colors duration-300">

@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import { useProfile } from '../context/ProfileContext';
+import { isSelectedModelUsable } from '../services/ai/registry';
 import { getAllProfessions } from '../services/professionRegistry';
 import type { ProfessionConfig, OnboardingField, UserProfile } from '../types/professionTypes';
 import {
@@ -30,7 +30,6 @@ const getIcon = (name: string, size = 28, className = '') => {
 // ══════════════════════════════════════════
 const Onboarding: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const { saveProfile } = useProfile();
 
   const allProfessions = useMemo(() => getAllProfessions(), []);
@@ -99,7 +98,7 @@ const Onboarding: React.FC = () => {
 
   // ── Sauvegarde finale ──
   const handleFinish = async () => {
-    if (!user || !selectedProfession || saving) return;
+    if (!selectedProfession || saving) return;
     setSaving(true);
 
     try {
@@ -107,7 +106,7 @@ const Onboarding: React.FC = () => {
       const { country, ...restData } = formData;
 
       const profile: UserProfile = {
-        uid: user.uid,
+        uid: 'local', // pas de compte : profil stocké sur l'appareil
         profession: selectedProfession.id,
         category: selectedProfession.category,
         displayName: displayName.trim(),
@@ -119,8 +118,11 @@ const Onboarding: React.FC = () => {
 
       await saveProfile(profile);
       
-      // Petit délai pour voir l'animation de succès
-      setTimeout(() => navigate('/', { replace: true }), 1500);
+      // Petit délai pour voir l'animation de succès, puis configuration de la clé si besoin
+      setTimeout(() => {
+        if (isSelectedModelUsable()) navigate('/', { replace: true });
+        else navigate('/models', { replace: true, state: { returnTo: '/' } });
+      }, 1500);
     } catch (e) {
       console.error('Erreur sauvegarde profil:', e);
       setSaving(false);
@@ -262,7 +264,7 @@ const Onboarding: React.FC = () => {
   // ══════════════════════════════════════════
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-800 flex flex-col transition-colors">
+    <div className="min-h-dvh bg-gradient-to-b from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-800 flex flex-col transition-colors">
 
       {/* ── Barre de progression ── */}
       <div className="sticky top-0 z-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-gray-100 dark:border-slate-700">
@@ -293,7 +295,7 @@ const Onboarding: React.FC = () => {
           <div className="flex-1 flex flex-col animate-slide-up">
             <div className="text-center mb-8">
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                Bienvenue sur SecretarIA
+                Bienvenue sur ProfScanner
               </h1>
               <p className="text-gray-500 dark:text-gray-400">
                 Quelle est votre profession ?

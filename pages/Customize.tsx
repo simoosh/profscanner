@@ -4,6 +4,7 @@ import { ApiService, ScanResult } from '../services/apiService';
 import { RenameModal } from '../components/RenameModal';
 import { AppModal, ModalType } from '../components/AppModal';
 import { fileStore } from '../services/fileStore';
+import { getSelectedModel, isSelectedModelUsable } from '../services/ai/registry';
 import { 
   ArrowLeft, 
   Sparkles, 
@@ -157,6 +158,10 @@ const Customize: React.FC = () => {
   ];
 
   const handleLaunchScan = async () => {
+    if (!isSelectedModelUsable()) {
+      navigate('/models', { state: { returnTo: '/customize' } });
+      return;
+    }
     setLoading(true);
     setLoadingMessage(loadingMessages[0]);
 
@@ -171,7 +176,16 @@ const Customize: React.FC = () => {
     }, 5000);
 
     try {
-      const result = await ApiService.uploadMultipleDocuments(files, hasMath, customPrompt);
+      // Dès que le texte arrive (streaming), on affiche la progression réelle.
+      const result = await ApiService.uploadMultipleDocuments(files, hasMath, customPrompt, ({ phase, chars }) => {
+        if (chars <= 0) return;
+        clearInterval(msgInterval);
+        setLoadingMessage(
+          phase === 'thinking'
+            ? `L'IA réfléchit avant d'écrire… (${chars.toLocaleString('fr-FR')} caractères)`
+            : `L'IA écrit le document… ${chars.toLocaleString('fr-FR')} caractères`
+        );
+      });
       clearInterval(msgInterval);
       setTempScan(result);
       setShowPostScanModal(true);
@@ -180,10 +194,9 @@ const Customize: React.FC = () => {
       setLoading(false);
       // Message d'erreur court et clair
       const rawMsg = err.message || "";
-      let friendlyMsg = "Une erreur est survenue lors de l'analyse.";
-      if (rawMsg.includes('blocked') || rawMsg.includes('403')) {
-        friendlyMsg = "L'accès à l'IA est temporairement bloqué. Réessayez dans quelques instants.";
-      } else if (rawMsg.includes('illisible')) {
+      // Les erreurs Gemini arrivent déjà traduites (services/settings.ts → describeGeminiError)
+      let friendlyMsg = rawMsg || "Une erreur est survenue lors de l'analyse.";
+      if (rawMsg.includes('illisible')) {
         friendlyMsg = "L'image est illisible. Essayez avec une photo plus nette.";
       } else if (rawMsg.includes('timeout') || rawMsg.includes('timed out')) {
         friendlyMsg = "Le document est trop complexe. Essayez avec moins de pages.";
@@ -217,7 +230,7 @@ const Customize: React.FC = () => {
   // Écran de chargement
   if (loading && !showPostScanModal) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex flex-col justify-center items-center p-6 transition-colors">
+      <div className="min-h-dvh bg-gray-50 dark:bg-slate-900 flex flex-col justify-center items-center p-6 transition-colors">
         <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-6"></div>
         <h2 key={loadingMessage} className="text-xl font-bold text-gray-800 dark:text-white text-center mb-2 animate-text-fade">
           {loadingMessage}
@@ -231,7 +244,7 @@ const Customize: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors duration-300 flex flex-col">
+    <div className="min-h-dvh bg-gray-50 dark:bg-slate-900 transition-colors duration-300 flex flex-col">
       
       {/* MODALES */}
       <AppModal
@@ -402,6 +415,12 @@ const Customize: React.FC = () => {
 
       {/* BOUTON FIXE EN BAS */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg border-t border-gray-100 dark:border-slate-700 z-20">
+        <button
+          onClick={() => navigate('/models', { state: { returnTo: '/customize' } })}
+          className="w-full mb-2 text-xs text-gray-500 dark:text-gray-400 flex items-center justify-center gap-1"
+        >
+          Modèle : <span className="font-semibold text-gray-700 dark:text-gray-200">{getSelectedModel().label}</span> · changer
+        </button>
         <button
           onClick={handleLaunchScan}
           className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-500/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2 text-base"

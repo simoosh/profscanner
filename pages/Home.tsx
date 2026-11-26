@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ApiService, ScanResult } from '../services/apiService';
+import { ApiService, ScanResult, formatDuration } from '../services/apiService';
 import { RenameModal } from '../components/RenameModal';
 import { AppModal, ModalType } from '../components/AppModal';
 import { fileStore } from '../services/fileStore';
 import { useProfile } from '../context/ProfileContext';
 import { getProfessionById } from '../services/professionRegistry';
 import type { HomeAction } from '../types/professionTypes';
+import { InstallCard } from '../components/InstallCard';
 import {
   Pencil, Camera, Upload, Pi, Trash2, Search, X, Plus, ArrowRight,
   Image as ImageIcon, GraduationCap, Scale, Stethoscope, Ruler, Briefcase,
@@ -166,7 +167,7 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors duration-300">
+    <div className="min-h-dvh bg-gray-50 dark:bg-slate-900 transition-colors duration-300">
 
       {/* MODALES */}
       <AppModal
@@ -210,6 +211,9 @@ const Home: React.FC = () => {
       </header>
 
       <main className="p-4 space-y-6 pb-24">
+
+        {/* Invite à installer l'app (plein écran sans barre d'adresse) : mobile uniquement, masquable */}
+        <InstallCard compact />
 
         {/* ═══ SECTION SCAN ═══ */}
         <section>
@@ -406,9 +410,10 @@ const Home: React.FC = () => {
                       </div>
                       <div className="min-w-0 flex-1">
                         <h3 className="font-medium text-gray-900 dark:text-white truncate">{scan.title}</h3>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <p className="text-xs text-gray-400">{new Date(scan.date).toLocaleDateString()}</p>
-                          {scan.docxReady && <span className="w-2 h-2 bg-green-500 rounded-full" title="DOCX prêt" />}
+                          {scan.model && <span className="text-xs text-gray-500 dark:text-gray-400 truncate">{scan.model}</span>}
+                          {scan.durationMs ? <span className="text-xs text-gray-400">⏱ {formatDuration(scan.durationMs)}</span> : null}
                         </div>
                       </div>
                     </div>
